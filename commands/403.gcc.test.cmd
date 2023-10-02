@@ -1,1 +1,1 @@
-cccp.in -o cccp.s
+cccp.i -o cccp.s
