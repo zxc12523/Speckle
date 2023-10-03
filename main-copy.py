@@ -8,7 +8,7 @@ getcontext().prec = 6
 
 data = []
 # fields = ('A','Float','RV32A','RV32C','RV32D','RV32F','RV32I','RV32M','RV64A','RV64I','RV64M','RV64V','Zicsr','nclas','sum')
-fields = ('A', 'SVE', 'PCrel addr',  'Add/Sub (imm)', 'Logical (imm)', 'Move Wide (imm)', 'Bitfield', 
+fields = ('A', 'UDEF', 'SVE', 'PCrel addr',  'Add/Sub (imm)', 'Logical (imm)', 'Move Wide (imm)', 'Bitfield', 
            'Extract', 'Cond Branch (imm)', 'Exception Gen', 'NOP', 'Hints', 'Barriers', 
            'System Insn',  'System Reg',  'Branch (reg)', 'Branch (imm)',  'Cmp & Branch', 'Tst & Branch',
            'AdvSimd ldstmult', 'AdvSimd ldst', 'ldst excl',  'Load Reg (lit)', 'ldst pair', 'ldst reg (imm)',

@@ -6,28 +6,32 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from decimal import *
-getcontext().prec = 6
 
-data = []
-fields = ['A','Float','RV32A','RV32C','RV32D','RV32F','RV32I','RV32M','RV64A','RV64I','RV64M','RV64V','Zicsr','nclas','sum']
-# fields = ()
-dir = "/home/jerry/Speckle/"
-# BENCHMARKS=["bzip2", "gcc",  "mcf", "gobmk" , "hmmer" , "sjeng"  ,"libquantum", "h264ref", "omnetpp" ,"astar", "Xalan"]
-BENCHMARKS=["dealII", 'lbm', 'milc', 'namd', 'povray', 'soplex', 'sphinx']
 target = "riscv"
 spec="fp"
+
+data = []
+fields = ['A','Float','RV32A','RV32C','RV32D','RV32F','RV32I','RV32M','RV64A','RV64I','RV64M','RV64V','Zicsr','nclas','sum'] if target == 'riscv' else ('A', 'SVE', 'PCrel addr',  'Add/Sub (imm)', 'Logical (imm)', 'Move Wide (imm)', 'Bitfield', 
+           'Extract', 'Cond Branch (imm)', 'Exception Gen', 'NOP', 'Hints', 'Barriers', 
+           'System Insn',  'System Reg',  'Branch (reg)', 'Branch (imm)',  'Cmp & Branch', 'Tst & Branch',
+           'AdvSimd ldstmult', 'AdvSimd ldst', 'ldst excl',  'Load Reg (lit)', 'ldst pair', 'ldst reg (imm)',
+           'Loads & Stores', 'Data Proc Reg',  'Scalar FP', 'sum')
+
+dir = "/home/jerry/Speckle/"
+BENCHMARKS=["bzip2", "gcc",  "mcf", "gobmk" , "hmmer" , "sjeng"  ,"libquantum", "h264ref", "omnetpp" ,"astar", "Xalan"] if spec == 'int' else ["dealII", 'lbm', 'milc', 'namd', 'povray', 'soplex', 'sphinx']
+
 
 def prune(string: str):
     i = 0
     j = len(string) - 1
 
-    while ('a' > string[i] or string[i] > 'z') and ('A' > string[i] or string[i] > 'Z'):
+    while ('a' > string[i] or string[i] > 'z') and ('A' > string[i] or string[i] > 'Z') and string[i] != ')':
         i += 1
     
-    while ('a' > string[j] or string[j] > 'z') and ('A' > string[j] or string[j] > 'Z'):
+    while ('a' > string[j] or string[j] > 'z') and ('A' > string[j] or string[j] > 'Z') and string[j] != ')':
         j -= 1
 
-    print(string[i:j+1])
+    # print(string[i:j+1])
     
     return string[i:j+1]
 
@@ -95,7 +99,7 @@ for benchmark in BENCHMARKS:
                 continue
 
             count = int(num)
-            category = line[0][13:18]
+            category = line[0][13:18] if target == 'riscv' else prune(line[0][6:])
             
 
             if category not in m.keys():
@@ -109,21 +113,27 @@ for benchmark in BENCHMARKS:
 
         
         m.setdefault("sum", sum)
-        m.setdefault("A", file.split('/')[0][13:])
+        m.setdefault("A", '_'.join(file.split('/')[0].split('_')[3:]))
         
         data.append(dict(sorted(m.items())))
 
 
     # data.insert(0, data.pop())
     # data.insert(0, data.pop())
-    
-    # print(benchmark)
-    # print(data)
+    # print(file)
+    print(benchmark)
+    print(data)
+    # print(m)
 
-    for i in range(1, len(data)):
-        data[i]['sum'] = round(data[i]['sum'] / data[0]['sum'], 3)
+    for i in range(0, len(data)):
+        if 'O3_Nslp_Nloop' in data[i].values():
+            std = data[i]['sum']
+
+    for i in range(0, len(data)):
+        data[i]['sum'] = round(data[i]['sum'] / std, 3)
     
-    data[0]['sum'] = 1
+    # data[0]['sum'] = 1
+    # print(data)
 
     # result = {data[i]['A']: [val for val in data[i].values()][1:-1] for i in range(len(data))}
 
@@ -163,60 +173,40 @@ for benchmark in BENCHMARKS:
 
 df.to_csv('output_{}_{}.csv'.format(target, spec))
 
-tmp = {'fp_O3_Nloop_Nslp': df.loc[df['A'] == 'fp_O3_Nloop_Nslp']['sum'].to_list(), 
-       'fp_O3_Nslp': df.loc[df['A'] == 'fp_O3_Nslp']['sum'].to_list(), 
-       'fp_O3_Nloop': df.loc[df['A'] == 'fp_O3_Nloop']['sum'].to_list(), 
-       'fp_O3': df.loc[df['A'] == 'fp_O3']['sum'].to_list()}
+def generate_result(field, range=(0.6, 1.2)):
+    tmp = {'O3_Nslp_Nloop': df.loc[df['A'] == 'O3_Nslp_Nloop'][field].to_list(), 
+        'O3_Nslp': df.loc[df['A'] == 'O3_Nslp'][field].to_list(), 
+        'O3_Nloop': df.loc[df['A'] == 'O3_Nloop'][field].to_list(), 
+        'O3': df.loc[df['A'] == 'O3'][field].to_list()}
 
+    # print(tmp)
+    x = np.arange(len(BENCHMARKS))  # the label locations
+    width = 0.1  # the width of the bars
+    multiplier = 0
 
-x = np.arange(len(BENCHMARKS))  # the label locations
-width = 0.1  # the width of the bars
-multiplier = 0
+    fig, ax = plt.subplots(layout='constrained')
+    fig.set_size_inches(10, 5)
 
-fig, ax = plt.subplots(layout='constrained')
-fig.set_size_inches(10, 5)
+    for attribute, measurement in tmp.items():
+        # print(attribute, measurement)
+        offset = width * multiplier
+        rects = ax.bar(x + offset, measurement, width, label=attribute)
+        ax.bar_label(rects)
+        multiplier += 2
 
-for attribute, measurement in tmp.items():
-    # print(attribute, measurement)
-    offset = width * multiplier
-    rects = ax.bar(x + offset, measurement, width, label=attribute)
-    ax.bar_label(rects)
-    multiplier += 2
+    # Add some text for labels, title and custom x-axis tick labels, etc.
+    ax.set_ylabel(field)
+    ax.set_title('Dynamic instruction count percentage')
+    ax.set_xticks(x + width, BENCHMARKS)
+    ax.legend(loc='upper left', ncols=len(BENCHMARKS))
+    ax.set_ylim(range)
+    plt.savefig('{}_{}_{}.png'.format(target, spec, field))
 
-# Add some text for labels, title and custom x-axis tick labels, etc.
-ax.set_ylabel('Length (mm)')
-ax.set_title('Penguin attributes by species')
-ax.set_xticks(x + width, BENCHMARKS)
-ax.legend(loc='upper left', ncols=7)
-ax.set_ylim(0.6, 1.2)
-plt.savefig('{}_{}_{}.png'.format(target, spec, "sum"))
+generate_result('sum')
 
-
-tmp = {'fp_O3_Nloop_Nslp': df.loc[df['A'] == 'fp_O3_Nloop_Nslp']['RV64V'].to_list(), 
-       'fp_O3_Nslp': df.loc[df['A'] == 'fp_O3_Nslp']['RV64V'].to_list(), 
-       'fp_O3_Nloop': df.loc[df['A'] == 'fp_O3_Nloop']['RV64V'].to_list(), 
-       'fp_O3': df.loc[df['A'] == 'fp_O3']['RV64V'].to_list()}
-
-
-x = np.arange(len(BENCHMARKS))  # the label locations
-width = 0.1  # the width of the bars
-multiplier = 0
-
-fig, ax = plt.subplots(layout='constrained')
-fig.set_size_inches(10, 5)
-
-for attribute, measurement in tmp.items():
-    # print(attribute, measurement)
-    offset = width * multiplier
-    rects = ax.bar(x + offset, measurement, width, label=attribute)
-    ax.bar_label(rects)
-    multiplier += 2
-
-# Add some text for labels, title and custom x-axis tick labels, etc.
-ax.set_ylabel('Length (mm)')
-ax.set_title('Penguin attributes by species')
-ax.set_xticks(x + width, BENCHMARKS)
-ax.legend(loc='upper left', ncols=7)
-ax.set_ylim(0, 1)
-
-plt.savefig('{}_{}_{}.png'.format(target, spec, "RV64V"))
+if target == 'riscv':
+    generate_result('RV64V', (0, 0.02))
+    generate_result('Float', (0, 1))
+else:
+    generate_result('SVE', (0, 0.05))
+    generate_result('Scalar FP', (0, 1))

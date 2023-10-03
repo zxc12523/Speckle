@@ -70,7 +70,7 @@ if [[ ${CONFIG} == "arm" ]]; then
    OPTION="-cpu max -plugin /home/jerry/riscv64-linux/qemu/build/contrib/plugins/libhowvec.so,inline=on,count=hint -d plugin"
 else 
    RUN="/opt/riscv/qemu/bin/qemu-riscv64"
-   OPTION="-cpu rv64,v=true,vlen=128,vext_spec=v1.0 -plugin /home/jerry/riscv64-linux/qemu/build/contrib/plugins/libhowvec.so,inline=on,count=hint -d plugin"
+   OPTION="-cpu rv64,v=true,vlen=256,vext_spec=v1.0 -plugin /home/jerry/riscv64-linux/qemu/build/contrib/plugins/libhowvec.so,inline=on,count=hint -d plugin"
 fi
 
 # RUN="/opt/arm/qemu/bin/qemu-aarch64 "
