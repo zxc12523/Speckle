@@ -72,29 +72,18 @@ CONFIGFILE=${CONFIG}.cfg
 
 if [[ ${CONFIG} =~ "arm" ]]; then
    RUN="/opt/arm/qemu/bin/qemu-aarch64 "
-   OPTION="-cpu max -plugin /home/jerry/riscv64-linux/qemu/build/contrib/plugins/libhowvec.so,inline=on,count=hint -d plugin"
+   OPTION="-cpu max,sve${vlen}=on -plugin /home/jerry/riscv64-linux/qemu/build/contrib/plugins/libhowvec.so,inline=on,count=hint -d plugin"
 else 
    RUN="/opt/riscv/qemu/bin/qemu-riscv64"
    OPTION="-cpu rv64,v=true,vlen=${vlen},vext_spec=v1.0 -plugin /home/jerry/riscv64-linux/qemu/build/contrib/plugins/libhowvec.so,inline=on,count=hint -d plugin"
 fi
 
-# RUN="/opt/arm/qemu/bin/qemu-aarch64 "
-# RUN="/opt/riscv/qemu/bin/qemu-riscv64"
-# OPTION="-cpu max -plugin /home/jerry/riscv64-linux/qemu/build/contrib/plugins/libhowvec.so,inline=on,count=hint -d plugin"
-# OPTION="-cpu rv64,v=true,vlen=256,vext_spec=v1.0 -plugin /home/jerry/riscv64-linux/qemu/build/contrib/plugins/libhowvec.so,inline=on,count=hint -d plugin"
-
-
-# the integer set
-# BENCHMARKS=(410.bwaves)
 if [[ ${SPEC} == "fp" ]]; then
    BENCHMARKS=(433.milc 444.namd 447.dealII 450.soplex 453.povray 470.lbm 482.sphinx3)
 else 
    BENCHMARKS=(400.perlbench 401.bzip2 403.gcc 429.mcf 445.gobmk 456.hmmer 458.sjeng 462.libquantum 464.h264ref 471.omnetpp 473.astar 483.xalancbmk)
 fi
 
-
-
-mkdir ${OUT_DIR}
 
 echo "== Speckle Options =="
 echo "  Spec2006  : " ${SPEC}
@@ -112,6 +101,7 @@ echo ""
 BUILD_DIR=$PWD/build
 COPY_DIR=$PWD/${CONFIG}-spec-${INPUT_TYPE}
 mkdir -p build;
+mkdir -p ${OUT_DIR}
 
 # compile the binaries
 if [ "$compileFlag" = true ]; then

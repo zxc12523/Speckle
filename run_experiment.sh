@@ -40,15 +40,15 @@ do
     shift
 done
 
-./gen_binaries.sh ${compileFlag} ${runFlag} --spec ${spec} --isa ${isa} --vlen ${vlen} --outdir /home/jerry/Speckle/result/${isa}_${spec}_O3
+./gen_binaries.sh ${compileFlag} ${runFlag} --spec ${spec} --isa ${isa} --vlen ${vlen} --outdir /home/jerry/Speckle/result/${isa}+${vlen}_${spec}_O3
 
 sed -i 's/O3/O3 -fno-vectorize/g' ${isa}.cfg
-./gen_binaries.sh ${compileFlag} ${runFlag} --spec ${spec} --isa ${isa} --vlen ${vlen} --outdir /home/jerry/Speckle/result/${isa}_${spec}_O3_Nloop
+./gen_binaries.sh ${compileFlag} ${runFlag} --spec ${spec} --isa ${isa} --vlen ${vlen} --outdir /home/jerry/Speckle/result/${isa}+${vlen}_${spec}_O3_Nloop
 
 sed -i 's/O3/O3 -fno-slp-vectorize/g' ${isa}.cfg
-./gen_binaries.sh ${compileFlag} ${runFlag} --spec ${spec} --isa ${isa} --vlen ${vlen} --outdir /home/jerry/Speckle/result/${isa}_${spec}_O3_Nslp_Nloop
+./gen_binaries.sh ${compileFlag} ${runFlag} --spec ${spec} --isa ${isa} --vlen ${vlen} --outdir /home/jerry/Speckle/result/${isa}+${vlen}_${spec}_O3_Nslp_Nloop
 
 sed -i 's/ -fno-vectorize//g' ${isa}.cfg
-./gen_binaries.sh ${compileFlag} ${runFlag} --spec ${spec} --isa ${isa} --vlen ${vlen} --outdir /home/jerry/Speckle/result/${isa}_${spec}_O3_Nslp
+./gen_binaries.sh ${compileFlag} ${runFlag} --spec ${spec} --isa ${isa} --vlen ${vlen} --outdir /home/jerry/Speckle/result/${isa}+${vlen}_${spec}_O3_Nslp
 
 sed -i 's/ -fno-slp-vectorize//g' ${isa}.cfg

@@ -11,7 +11,7 @@ target = "riscv"
 spec="fp"
 
 data = []
-fields = ['A','Float','RV32A','RV32C','RV32D','RV32F','RV32I','RV32M','RV64A','RV64I','RV64M','RV64V','Zicsr','nclas','sum'] if target == 'riscv' else ('A', 'SVE', 'PCrel addr',  'Add/Sub (imm)', 'Logical (imm)', 'Move Wide (imm)', 'Bitfield', 
+fields = ['A','Float','RV32A','RV32C','RV32D','RV32F','RV32I','RV32M','RV64A','RV64I','RV64M','RV64V','Zicsr','nclas','sum'] if 'riscv' in target  else ('A', 'SVE', 'PCrel addr',  'Add/Sub (imm)', 'Logical (imm)', 'Move Wide (imm)', 'Bitfield', 
            'Extract', 'Cond Branch (imm)', 'Exception Gen', 'NOP', 'Hints', 'Barriers', 
            'System Insn',  'System Reg',  'Branch (reg)', 'Branch (imm)',  'Cmp & Branch', 'Tst & Branch',
            'AdvSimd ldstmult', 'AdvSimd ldst', 'ldst excl',  'Load Reg (lit)', 'ldst pair', 'ldst reg (imm)',
@@ -74,7 +74,7 @@ def survey(results, category_names):
     
 
 for benchmark in BENCHMARKS:
-    for file in glob.iglob('result_' + target + '_' + spec + '*/*.out', recursive=True):
+    for file in glob.iglob('result/' + target + '_' + spec + '*/*.out', recursive=True):
 
         # print("Processing {} ...".format(file))
 
@@ -99,7 +99,7 @@ for benchmark in BENCHMARKS:
                 continue
 
             count = int(num)
-            category = line[0][13:18] if target == 'riscv' else prune(line[0][6:])
+            category = line[0][13:18] if 'riscv' in target  else prune(line[0][6:])
             
 
             if category not in m.keys():
@@ -142,7 +142,7 @@ for benchmark in BENCHMARKS:
     # survey(results=result, category_names=fields[1:-1])
     # plt.savefig("tmp.png")
 
-    with open(dir + "stat_" + target + "/" + benchmark + "_output.csv", "w", newline="") as csvfile:
+    with open(dir + "stat/" + target + "/" + benchmark + "_output.csv", "w+", newline="") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fields)
         
         writer.writeheader()
@@ -157,7 +157,7 @@ df = pd.DataFrame()
 cnt = 0
 
 for benchmark in BENCHMARKS:
-    for file in glob.iglob('stat_' + target + '/*', recursive=True):
+    for file in glob.iglob('stat/' + target + '/*', recursive=True):
         if file.find(benchmark) == -1:
             continue
         
@@ -171,7 +171,7 @@ for benchmark in BENCHMARKS:
         # df.index = [benchmark] * len(df.axes[0])
     
 
-df.to_csv('output_{}_{}.csv'.format(target, spec))
+df.to_csv('./output/{}_{}.csv'.format(target, spec))
 
 def generate_result(field, range=(0.6, 1.2)):
     tmp = {'O3_Nslp_Nloop': df.loc[df['A'] == 'O3_Nslp_Nloop'][field].to_list(), 
@@ -200,11 +200,11 @@ def generate_result(field, range=(0.6, 1.2)):
     ax.set_xticks(x + width, BENCHMARKS)
     ax.legend(loc='upper left', ncols=len(BENCHMARKS))
     ax.set_ylim(range)
-    plt.savefig('{}_{}_{}.png'.format(target, spec, field))
+    plt.savefig('./fig/{}_{}_{}.png'.format(target, spec, field))
 
 generate_result('sum')
 
-if target == 'riscv':
+if 'riscv' in target :
     generate_result('RV64V', (0, 0.02))
     generate_result('Float', (0, 1))
 else:
