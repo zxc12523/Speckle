@@ -4,11 +4,19 @@ import csv
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-
+import sys, getopt
+import argparse
 from decimal import *
 
-target = "riscv"
-spec="fp"
+
+argParser = argparse.ArgumentParser()
+argParser.add_argument("-t", "--target", help="target ISA")
+argParser.add_argument("-s", "--spec", help="int or fp")
+
+args = argParser.parse_args()
+
+target = args.target
+spec = args.spec
 
 data = []
 fields = ['A','Float','RV32A','RV32C','RV32D','RV32F','RV32I','RV32M','RV64A','RV64I','RV64M','RV64V','Zicsr','nclas','sum'] if 'riscv' in target  else ('A', 'SVE', 'PCrel addr',  'Add/Sub (imm)', 'Logical (imm)', 'Move Wide (imm)', 'Bitfield', 
@@ -113,7 +121,7 @@ for benchmark in BENCHMARKS:
 
         
         m.setdefault("sum", sum)
-        m.setdefault("A", '_'.join(file.split('/')[0].split('_')[3:]))
+        m.setdefault("A", '_'.join(file.split('/')[1].split('_')[2:]))
         
         data.append(dict(sorted(m.items())))
 
@@ -121,8 +129,8 @@ for benchmark in BENCHMARKS:
     # data.insert(0, data.pop())
     # data.insert(0, data.pop())
     # print(file)
-    print(benchmark)
-    print(data)
+    # print(benchmark)
+    # print(data)
     # print(m)
 
     for i in range(0, len(data)):
@@ -141,6 +149,9 @@ for benchmark in BENCHMARKS:
 
     # survey(results=result, category_names=fields[1:-1])
     # plt.savefig("tmp.png")
+
+    if not os.path.exists(dir + "stat/" + target):
+        os.mkdir(dir + "stat/" + target)
 
     with open(dir + "stat/" + target + "/" + benchmark + "_output.csv", "w+", newline="") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fields)
@@ -205,7 +216,7 @@ def generate_result(field, range=(0.6, 1.2)):
 generate_result('sum')
 
 if 'riscv' in target :
-    generate_result('RV64V', (0, 0.02))
+    generate_result('RV64V', (0, 1))
     generate_result('Float', (0, 1))
 else:
     generate_result('SVE', (0, 0.05))

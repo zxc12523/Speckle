@@ -52,3 +52,5 @@ sed -i 's/ -fno-vectorize//g' ${isa}.cfg
 ./gen_binaries.sh ${compileFlag} ${runFlag} --spec ${spec} --isa ${isa} --vlen ${vlen} --outdir /home/jerry/Speckle/result/${isa}+${vlen}_${spec}_O3_Nslp
 
 sed -i 's/ -fno-slp-vectorize//g' ${isa}.cfg
+
+python3 main.py --spec ${spec} --target ${isa}+${vlen}
