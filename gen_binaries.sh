@@ -19,10 +19,11 @@ runFlag=false
 copyFlag=false
 CONFIG="riscv"
 SPEC="fp"
+vlen='256'
 PLUGIN=false
 CMD_FILE=commands.txt
 INPUT_TYPE=test
-OUT_DIR="/home/jerry/spec2006/Speckle/tmp"
+OUT_DIR="/home/jerry/Speckle/tmp"
 
 while test $# -gt 0
 do
@@ -42,6 +43,10 @@ do
             ;;
         --isa)
             CONFIG=$2
+            shift
+            ;;
+        --vlen)
+            vlen=$2
             shift
             ;;
         --outdir)
@@ -65,12 +70,12 @@ done
 
 CONFIGFILE=${CONFIG}.cfg
 
-if [[ ${CONFIG} == "arm" ]]; then
+if [[ ${CONFIG} =~ "arm" ]]; then
    RUN="/opt/arm/qemu/bin/qemu-aarch64 "
    OPTION="-cpu max -plugin /home/jerry/riscv64-linux/qemu/build/contrib/plugins/libhowvec.so,inline=on,count=hint -d plugin"
 else 
    RUN="/opt/riscv/qemu/bin/qemu-riscv64"
-   OPTION="-cpu rv64,v=true,vlen=256,vext_spec=v1.0 -plugin /home/jerry/riscv64-linux/qemu/build/contrib/plugins/libhowvec.so,inline=on,count=hint -d plugin"
+   OPTION="-cpu rv64,v=true,vlen=${vlen},vext_spec=v1.0 -plugin /home/jerry/riscv64-linux/qemu/build/contrib/plugins/libhowvec.so,inline=on,count=hint -d plugin"
 fi
 
 # RUN="/opt/arm/qemu/bin/qemu-aarch64 "
@@ -99,6 +104,8 @@ echo "  Output    : " ${OUT_DIR}
 echo "  compile   : " $compileFlag
 echo "  run       : " $runFlag
 echo "  copy      : " $copyFlag
+echo "  RUN       : " $RUN
+echo "  OPTION    : " $OPTION
 echo ""
 
 

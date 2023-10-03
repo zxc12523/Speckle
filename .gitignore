@@ -3,3 +3,5 @@
 *.png
 result*
 build*
+fig*
+stat_*
