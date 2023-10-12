@@ -72,16 +72,17 @@ CONFIGFILE=${CONFIG}.cfg
 
 if [[ ${CONFIG} =~ "arm" ]]; then
    RUN="/opt/arm/qemu/bin/qemu-aarch64 "
-   OPTION="-cpu max,sve${vlen}=on -plugin /home/jerry/riscv64-linux/qemu/build/contrib/plugins/libhowvec.so,inline=on,count=hint -d plugin"
+   OPTION="-cpu max,sve${vlen}=on -plugin /home/jerry/riscv64-linux/qemu/build/contrib/plugins/libhowvec.so,inline=on -d plugin"
 else 
    RUN="/opt/riscv/qemu/bin/qemu-riscv64"
-   OPTION="-cpu rv64,v=true,vlen=${vlen},vext_spec=v1.0 -plugin /home/jerry/riscv64-linux/qemu/build/contrib/plugins/libhowvec.so,inline=on,count=hint -d plugin"
+   OPTION="-cpu rv64,v=true,vlen=${vlen},vext_spec=v1.0 -plugin /home/jerry/riscv64-linux/qemu/build/contrib/plugins/libhowvec.so,inline=on -d plugin"
 fi
 
 if [[ ${SPEC} == "fp" ]]; then
    BENCHMARKS=(433.milc 444.namd 447.dealII 450.soplex 453.povray 470.lbm 482.sphinx3)
 else 
-   BENCHMARKS=(400.perlbench 401.bzip2 403.gcc 429.mcf 445.gobmk 456.hmmer 458.sjeng 462.libquantum 464.h264ref 471.omnetpp 473.astar 483.xalancbmk)
+   # BENCHMARKS=(400.perlbench 401.bzip2 403.gcc 429.mcf 445.gobmk 456.hmmer 458.sjeng 462.libquantum 464.h264ref 471.omnetpp 473.astar 483.xalancbmk)
+   BENCHMARKS=(464.h264ref)
 fi
 
 
@@ -97,6 +98,7 @@ echo "  RUN       : " $RUN
 echo "  OPTION    : " $OPTION
 echo ""
 
+# echo ${CONFIG%+*}
 
 BUILD_DIR=$PWD/build
 COPY_DIR=$PWD/${CONFIG}-spec-${INPUT_TYPE}
@@ -125,7 +127,7 @@ if [ "$compileFlag" = true ]; then
       if [ $b == "483.xalancbmk" ]; then 
          SHORT_EXE=Xalan #WTF SPEC???
       fi
-      BMK_DIR=$SPEC_DIR/benchspec/CPU2006/$b/run/run_base_${INPUT_TYPE}_${CONFIG}.0000;
+      BMK_DIR=$SPEC_DIR/benchspec/CPU2006/$b/run/run_base_${INPUT_TYPE}_${CONFIG%+*}.0000;
       
       # echo ""
       # echo "ls $SPEC_DIR/benchspec/CPU2006/$b/run"
@@ -179,7 +181,7 @@ if [ "$runFlag" = true ]; then
          if [[ ${input:0:1} != '#' ]]; then # allow us to comment out lines in the cmd files
             echo "~~~Running ${b}" 
             echo "  ${RUN} ${OPTION} ${SHORT_EXE}_base.${CONFIG} ${input}"
-            eval ${RUN} ${OPTION} ${SHORT_EXE}_base.${CONFIG} ${input} 1> /dev/null 2> ${OUT_DIR}/${SHORT_EXE}_base.${CONFIG}.out
+            eval ${RUN} ${OPTION} ${SHORT_EXE}_base.${CONFIG%+*} ${input} 1> /dev/null 2> ${OUT_DIR}/${SHORT_EXE}_base.${CONFIG}.out
          fi
       done
    

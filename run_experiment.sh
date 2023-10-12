@@ -9,6 +9,7 @@ vlen='256'
 
 while test $# -gt 0
 do
+    echo $# 
    case "$1" in
         --compile) 
             compileFlag='--compile'
@@ -53,4 +54,4 @@ sed -i 's/ -fno-vectorize//g' ${isa}.cfg
 
 sed -i 's/ -fno-slp-vectorize//g' ${isa}.cfg
 
-python3 main.py --spec ${spec} --target ${isa}+${vlen}
+# python3 main.py --spec ${spec} --target ${isa}+${vlen}

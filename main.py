@@ -58,7 +58,7 @@ def survey(results, category_names):
     labels = list(results.keys())
     data = np.array(list(results.values()))
     data_cum = data.cumsum(axis=1)
-    category_colors = plt.colormaps['RdYlGn'](
+    category_colors = plt.colormaps['Spectral'](
         np.linspace(0.15, 0.85, data.shape[1]))
 
     fig, ax = plt.subplots(figsize=(15, 5))
@@ -143,12 +143,14 @@ for benchmark in BENCHMARKS:
     # data[0]['sum'] = 1
     # print(data)
 
-    # result = {data[i]['A']: [val for val in data[i].values()][1:-1] for i in range(len(data))}
+    if benchmark == 'milc':
+        result = {data[i]['A']: [val for val in data[i].values()][1:-1] for i in range(len(data))}
+        
+        # print(data)
+        print(result)
 
-    # print(result)
-
-    # survey(results=result, category_names=fields[1:-1])
-    # plt.savefig("tmp.png")
+        survey(results=result, category_names=fields[1:-1])
+        plt.savefig("tmp.png")
 
     if not os.path.exists(dir + "stat/" + target):
         os.mkdir(dir + "stat/" + target)
@@ -216,8 +218,9 @@ def generate_result(field, range=(0.6, 1.2)):
 generate_result('sum')
 
 if 'riscv' in target :
-    generate_result('RV64V', (0, 1))
+    generate_result('RV64V', (0, 0.1))
     generate_result('Float', (0, 1))
 else:
-    generate_result('SVE', (0, 0.05))
+    generate_result('SVE', (0, 0.2))
     generate_result('Scalar FP', (0, 1))
+    generate_result('AdvSimd ldstmult', (0, 0.01))
