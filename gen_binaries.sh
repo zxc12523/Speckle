@@ -20,7 +20,7 @@ copyFlag=false
 CONFIG="riscv"
 SPEC="fp"
 vlen='256'
-PLUGIN=false
+PLUGIN=''
 CMD_FILE=commands.txt
 INPUT_TYPE=test
 OUT_DIR="/home/jerry/Speckle/tmp"
@@ -53,6 +53,10 @@ do
             OUT_DIR=$2
             shift
             ;;
+        --plugin)
+            PLUGIN=$2
+            shift
+            ;;
         --*) echo "ERROR: bad option $1"
             echo "  --compile (compile the SPEC benchmarks), --run (to run the benchmarks) --copy (copies, not symlinks, benchmarks to a new dir)"
             exit 1
@@ -71,18 +75,23 @@ done
 CONFIGFILE=${CONFIG}.cfg
 
 if [[ ${CONFIG} =~ "arm" ]]; then
-   RUN="/opt/arm/qemu/bin/qemu-aarch64 "
-   OPTION="-cpu max,sve${vlen}=on -plugin /home/jerry/riscv64-linux/qemu/build/contrib/plugins/libhowvec.so,inline=on -d plugin"
+   RUN="/opt/arm/qemu/bin/qemu-aarch64 -cpu max,sve${vlen}=on "
 else 
-   RUN="/opt/riscv/qemu/bin/qemu-riscv64"
-   OPTION="-cpu rv64,v=true,vlen=${vlen},vext_spec=v1.0 -plugin /home/jerry/riscv64-linux/qemu/build/contrib/plugins/libhowvec.so,inline=on -d plugin"
+   RUN="/opt/riscv/qemu/bin/qemu-riscv64 -cpu rv64,v=true,vlen=${vlen},vext_spec=v1.0"
+fi
+
+if [[ ${PLUGIN} == 'howvec' ]]; then
+   OPTION="-plugin /home/jerry/riscv64-linux/qemu/build/contrib/plugins/libhowvec.so,inline=on -d plugin"
+elif [[ ${PLUGIN} == 'hotblocks' ]]; then
+   OPTION="-plugin /home/jerry/riscv64-linux/qemu/build/contrib/plugins/libhotblocks.so,inline=on -d plugin"
 fi
 
 if [[ ${SPEC} == "fp" ]]; then
    BENCHMARKS=(433.milc 444.namd 447.dealII 450.soplex 453.povray 470.lbm 482.sphinx3)
+elif [[ ${SPEC} == "int" ]]; then
+   BENCHMARKS=(400.perlbench 401.bzip2 403.gcc 429.mcf 445.gobmk 456.hmmer 458.sjeng 462.libquantum 464.h264ref 471.omnetpp 473.astar 483.xalancbmk)
 else 
-   # BENCHMARKS=(400.perlbench 401.bzip2 403.gcc 429.mcf 445.gobmk 456.hmmer 458.sjeng 462.libquantum 464.h264ref 471.omnetpp 473.astar 483.xalancbmk)
-   BENCHMARKS=(464.h264ref)
+   BENCHMARKS=${SPEC}
 fi
 
 

@@ -1,6 +1,7 @@
 *.csv
 *.out
 *.png
+*.log
 result*
 build*
 fig*
