@@ -2,6 +2,7 @@
 *.out
 *.png
 *.log
+*.zip
 result*
 build*
 fig*
