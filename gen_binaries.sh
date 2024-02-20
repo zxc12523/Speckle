@@ -6,7 +6,7 @@
 #  * allow the user to input their desired input set
 #  * auto-handle output file generation
 
-export SPEC_DIR=/home/jerry/spec2006/SPEC_CPU2006v1.1.cp
+export SPEC_DIR=../SPEC_CPU2006v1.1
 
 if [ -z  "$SPEC_DIR" ]; then 
    echo "  Please set the SPEC_DIR environment variable to point to your copy of SPEC CPU2006."
@@ -75,15 +75,17 @@ done
 CONFIGFILE=${CONFIG}.cfg
 
 if [[ ${CONFIG} =~ "arm" ]]; then
-   RUN="/opt/arm/qemu/bin/qemu-aarch64 -cpu max,sve${vlen}=on "
+   RUN="/usr/local/bin/qemu-aarch64 -cpu max,sve${vlen}=on "
 else 
-   RUN="/opt/riscv/qemu/bin/qemu-riscv64 -cpu rv64,v=true,vlen=${vlen},vext_spec=v1.0"
+   RUN="/usr/local/bin/qemu-riscv64 -cpu rv64,v=true,vlen=${vlen},vext_spec=v1.0"
 fi
 
 if [[ ${PLUGIN} == 'howvec' ]]; then
-   OPTION="-plugin /home/jerry/riscv64-linux/qemu/build/contrib/plugins/libhowvec.so,inline=on -d plugin"
+   OPTION="-plugin /local/jerry/qemu/build/contrib/plugins/libhowvec.so,inline=on -d plugin"
 elif [[ ${PLUGIN} == 'hotblocks' ]]; then
-   OPTION="-plugin /home/jerry/riscv64-linux/qemu/build/contrib/plugins/libhotblocks.so,inline=on -d plugin"
+   OPTION="-plugin /local/jerry/qemu/build/contrib/plugins/libhotblocks.so,inline=on -d plugin"
+elif [[ ${PLUGIN} == 'bbv' ]]; then
+   OPTION="-plugin /local/jerry/qpoints/libbbv.so -d plugin"
 fi
 
 if [[ ${SPEC} == "fp" ]]; then
@@ -191,6 +193,10 @@ if [ "$runFlag" = true ]; then
             echo "~~~Running ${b}" 
             echo "  ${RUN} ${OPTION} ${SHORT_EXE}_base.${CONFIG} ${input}"
             eval ${RUN} ${OPTION} ${SHORT_EXE}_base.${CONFIG%+*} ${input} 1> /dev/null 2> ${OUT_DIR}/${SHORT_EXE}_base.${CONFIG}.out
+            if [[ ${PLUGIN} == 'bbv' ]]; then
+               mv "trace_bbv.gz" ${OUT_DIR}
+               mv "trace_pc.txt" ${OUT_DIR}
+            fi
          fi
       done
    

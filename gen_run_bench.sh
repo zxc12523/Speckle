@@ -6,7 +6,7 @@
 #  * allow the user to input their desired input set
 #  * auto-handle output file generation
 
-export SPEC_DIR=/home/jerry/spec2006/SPEC_CPU2006v1.1.cp
+export SPEC_DIR=/home/jerry/spec2006/SPEC_CPU2006v1.1
 
 if [ -z  "$SPEC_DIR" ]; then 
    echo "  Please set the SPEC_DIR environment variable to point to your copy of SPEC CPU2006."
