@@ -75,9 +75,9 @@ done
 CONFIGFILE=${CONFIG}.cfg
 
 if [[ ${CONFIG} =~ "arm" ]]; then
-   RUN="/usr/local/bin/qemu-aarch64 -cpu max,sve${vlen}=on "
+   RUN="/opt/riscv/qemu/bin/qemu-aarch64 -cpu max,sve${vlen}=on "
 else 
-   RUN="/usr/local/bin/qemu-riscv64 -cpu rv64,v=true,vlen=${vlen},vext_spec=v1.0"
+   RUN="/opt/riscv/qemu/bin/qemu-riscv64 -cpu rv64,v=true,vlen=${vlen},vext_spec=v1.0 -L /usr/riscv64-linux-gnu/"
 fi
 
 if [[ ${PLUGIN} == 'howvec' ]]; then
@@ -85,7 +85,9 @@ if [[ ${PLUGIN} == 'howvec' ]]; then
 elif [[ ${PLUGIN} == 'hotblocks' ]]; then
    OPTION="-plugin /local/jerry/qemu/build/contrib/plugins/libhotblocks.so,inline=on -d plugin"
 elif [[ ${PLUGIN} == 'bbv' ]]; then
-   OPTION="-plugin /local/jerry/qpoints/libbbv.so -d plugin"
+   OPTION="-plugin /local/jerry/qemu/build/contrib/plugins/libbbv.so -d plugin"
+elif [[ ${PLUGIN} == 'bbv' ]]; then
+   OPTION="-plugin /local/jerry/qemu/build/contrib/plugins/libtracer.so -d plugin"
 fi
 
 if [[ ${SPEC} == "fp" ]]; then
