@@ -86,7 +86,7 @@ elif [[ ${PLUGIN} == 'hotblocks' ]]; then
    OPTION="-plugin /local/jerry/qemu/build/contrib/plugins/libhotblocks.so,inline=on -d plugin"
 elif [[ ${PLUGIN} == 'bbv' ]]; then
    OPTION="-plugin /local/jerry/qemu/build/contrib/plugins/libbbv.so -d plugin"
-elif [[ ${PLUGIN} == 'bbv' ]]; then
+elif [[ ${PLUGIN} == 'trace' ]]; then
    OPTION="-plugin /local/jerry/qemu/build/contrib/plugins/libtracer.so -d plugin"
 fi
 
@@ -192,12 +192,19 @@ if [ "$runFlag" = true ]; then
 
       for input in "${commands[@]}"; do
          if [[ ${input:0:1} != '#' ]]; then # allow us to comment out lines in the cmd files
+
+            if [[ ${PLUGIN} == 'trace' ||  ${PLUGIN} == 'bbv' ]]; then
+
+               echo "cp \"${OUT_DIR}trace*\" ."
+               cp ${OUT_DIR}trace* .
+            fi
+
             echo "~~~Running ${b}" 
             echo "  ${RUN} ${OPTION} ${SHORT_EXE}_base.${CONFIG} ${input}"
-            eval ${RUN} ${OPTION} ${SHORT_EXE}_base.${CONFIG%+*} ${input} 1> /dev/null 2> ${OUT_DIR}/${SHORT_EXE}_base.${CONFIG}.out
-            if [[ ${PLUGIN} == 'bbv' ]]; then
-               mv "trace_bbv.gz" ${OUT_DIR}
-               mv "trace_pc.txt" ${OUT_DIR}
+            eval ${RUN} ${OPTION} ${SHORT_EXE}_base.${CONFIG%+*} ${input} 
+            
+            if [[ ${PLUGIN} == 'trace' || ${PLUGIN} == 'bbv' ]]; then
+               mv trace* ${OUT_DIR}
             fi
          fi
       done
