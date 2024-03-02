@@ -201,7 +201,7 @@ if [ "$runFlag" = true ]; then
 
             echo "~~~Running ${b}" 
             echo "  ${RUN} ${OPTION} ${SHORT_EXE}_base.${CONFIG} ${input}"
-            eval ${RUN} ${OPTION} ${SHORT_EXE}_base.${CONFIG%+*} ${input} 
+            eval ${RUN} ${OPTION} ${SHORT_EXE}_base.${CONFIG%+*} ${input} > /dev/null 2> ${OUT_DIR}/result.log
             
             if [[ ${PLUGIN} == 'trace' || ${PLUGIN} == 'bbv' ]]; then
                mv trace* ${OUT_DIR}
